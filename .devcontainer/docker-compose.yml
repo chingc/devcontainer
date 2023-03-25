@@ -1,0 +1,38 @@
+# Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+# Adding the "ports" property to this file will not forward from a Codespace.
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:db
+    env_file:
+      - devcontainer.env
+    environment:
+      - PGHOST=db
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+
+  cache:
+    image: redis:latest
+    restart: unless-stopped
+    network_mode: service:db
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  postgres-data:
